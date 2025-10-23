@@ -1,0 +1,30 @@
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+.icon-button:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.icon-button:active {
+  background-color: #e9ecef;
+}
