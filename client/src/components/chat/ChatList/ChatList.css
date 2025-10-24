@@ -3,8 +3,10 @@
   border-right: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
   min-height: 0;
+  position: relative;
+  height: 100%;
 }
 
 .chat-list.expanded {
@@ -21,13 +23,16 @@
   padding: 16px;
   border-bottom: 1px solid #e9ecef;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .chat-list-title {
   font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 16px 0;
+  margin: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -36,11 +41,40 @@
 .chat-list-controls {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.sidebar-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.control-button:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.control-button.active {
+  background-color: #667eea;
+  color: white;
 }
 
 .chat-search {
   position: relative;
-  margin-bottom: 12px;
 }
 
 .search-icon {
@@ -74,6 +108,12 @@
   min-height: 0;
 }
 
+/* Стили для свернутого состояния */
+.chat-list.collapsed .chat-search,
+.chat-list.collapsed .chat-list-title-text {
+  display: none;
+}
+
 .collapsed-content {
   display: flex;
   flex-direction: column;
@@ -93,7 +133,7 @@
   font-weight: 600;
   font-size: 12px;
   cursor: pointer;
-  background: linear-gradient(135deg, #5e79f5, #6884d1);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   border: 2px solid transparent;
   transition: all 0.2s;
 }
@@ -106,4 +146,41 @@
 .collapsed-chat-item.selected {
   border-color: #28a745;
   box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.3);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .chat-list:not(.collapsed) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+}
+
+/* Анимации */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.chat-list:not(.collapsed) {
+  animation: slideIn 0.3s ease;
 }

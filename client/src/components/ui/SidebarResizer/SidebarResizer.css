@@ -1,0 +1,44 @@
+.sidebar-resizer {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.sidebar-resizer:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+}
+
+.sidebar-resizer.resizing {
+  background-color: rgba(102, 126, 234, 0.3);
+}
+
+.sidebar-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 40px;
+  background-color: #667eea;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.sidebar-resizer:hover::after {
+  opacity: 1;
+}
+
+.sidebar-resizer.resizing::after {
+  opacity: 1;
+  height: 100%;
+  top: 0;
+  transform: none;
+}

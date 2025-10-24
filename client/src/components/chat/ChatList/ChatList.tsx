@@ -3,6 +3,8 @@ import type { Chat } from '../../../types';
 import { ChatItem } from '../ChatItem/ChatItem';
 import { Icon } from '../../ui/Icon/Icon';
 import { Modal } from '../../ui/Modal/Modal';
+import { SidebarResizer } from '../../ui/SidebarResizer/SidebarResizer';
+import { useSidebar } from '../../../contexts/SidebarContext';
 import api from '../../../services/api';
 import './ChatList.css';
 
@@ -23,13 +25,18 @@ export const ChatList: React.FC<ChatListProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newChatFirstName, setNewChatFirstName] = useState('');
   const [newChatLastName, setNewChatLastName] = useState('');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  const { 
+    isCollapsed, 
+    sidebarWidth, 
+    toggleSidebar 
+  } = useSidebar(); // Убрали функции управления шириной
 
   const filteredChats = chats.filter(chat =>
     `${chat.firstName} ${chat.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleCreateChat = async () => {
+  const handleCreateChat = async (): Promise<void> => {
     if (!newChatFirstName || !newChatLastName) return;
 
     try {
@@ -52,24 +59,35 @@ export const ChatList: React.FC<ChatListProps> = ({
 
   return (
     <>
-      <div className={`chat-list ${isCollapsed ? 'collapsed' : 'expanded'}`}>
+      {/* Overlay для мобильных устройств */}
+      {!isCollapsed && window.innerWidth <= 768 && (
+        <div 
+          className="mobile-overlay" 
+          onClick={toggleSidebar}
+        />
+      )}
+
+      <div 
+        className={`chat-list ${isCollapsed ? 'collapsed' : ''}`}
+        style={{ width: isCollapsed ? 60 : sidebarWidth }}
+      >
         <div className="chat-list-header">
           {!isCollapsed ? (
             <>
               <div className="chat-list-title">
-                Чаты
+                <span className="chat-list-title-text">Чаты</span>
                 <div className="chat-list-controls">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="icon-button"
+                    className="control-button"
                     title="Создать новый чат"
                   >
                     <Icon name="plus" />
                   </button>
                   <button
-                    onClick={() => setIsCollapsed(true)}
-                    className="icon-button"
-                    title="Свернуть"
+                    onClick={toggleSidebar}
+                    className="control-button"
+                    title="Свернуть панель"
                   >
                     <Icon name="close" />
                   </button>
@@ -93,15 +111,15 @@ export const ChatList: React.FC<ChatListProps> = ({
             <div className="collapsed-content">
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="icon-button"
+                className="control-button"
                 title="Создать новый чат"
               >
                 <Icon name="plus" />
               </button>
               <button
-                onClick={() => setIsCollapsed(false)}
-                className="icon-button"
-                title="Развернуть"
+                onClick={toggleSidebar}
+                className="control-button"
+                title="Развернуть панель"
               >
                 <Icon name="search" />
               </button>
@@ -137,6 +155,9 @@ export const ChatList: React.FC<ChatListProps> = ({
             </div>
           )}
         </div>
+
+        {/* Добавляем возможность изменения размера перетаскиванием */}
+        {!isCollapsed && <SidebarResizer />}
       </div>
 
       <Modal
