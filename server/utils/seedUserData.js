@@ -15,20 +15,20 @@ export const seedUserChats = async (userId) => {
     // Создаем тестовые чаты для нового пользователя
     const chat1 = await Chat.create({
       userId: userId,
-      firstName: 'Иван',
-      lastName: 'Петров'
+      firstName: 'Nick',
+      lastName: 'Fury'
     });
     
     const chat2 = await Chat.create({
       userId: userId,
-      firstName: 'Мария',
-      lastName: 'Сидорова'
+      firstName: 'Natasha',
+      lastName: 'Romanof'
     });
     
     const chat3 = await Chat.create({
       userId: userId,
-      firstName: 'Алексей',
-      lastName: 'Козлов'
+      firstName: 'Steve',
+      lastName: 'Rogers'
     });
 
     console.log('Test chats created for user:', userId);

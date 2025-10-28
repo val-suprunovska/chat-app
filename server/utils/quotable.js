@@ -2,8 +2,9 @@ import axios from 'axios';
 
 export const getRandomQuote = async () => {
   try {
-    const response = await axios.get('https://api.quotable.io/random');
-    return `${response.data.content} — ${response.data.author}`;
+    const response = await axios.get('https://zenquotes.io/api/random');
+    const quoteData = response.data[0];
+    return `${quoteData.q} — ${quoteData.a}`;
   } catch (error) {
     console.error('Error fetching quote:', error);
     // Fallback quotes
