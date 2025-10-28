@@ -35,11 +35,38 @@ export const useChats = () => {
     }
   }, []);
 
+  // Функция для перемещения чата наверх при новом сообщении
+  const reorderChats = useCallback((chatId: string): void => {
+    console.log('Reordering chats, moving chat to top:', chatId);
+    
+    setChats(prevChats => {
+      // Находим чат который нужно переместить
+      const chatToMove = prevChats.find(chat => chat._id === chatId);
+      if (!chatToMove) {
+        console.log('Chat not found for reordering:', chatId);
+        return prevChats;
+      }
+
+      // Убираем чат из текущей позиции
+      const otherChats = prevChats.filter(chat => chat._id !== chatId);
+      
+      // Создаем новый массив с чатом наверху
+      const reorderedChats = [chatToMove, ...otherChats];
+      
+      console.log('Chats reordered. New order:', reorderedChats.map(chat => ({
+        id: chat._id,
+        name: `${chat.firstName} ${chat.lastName}`
+      })));
+      
+      return reorderedChats;
+    });
+  }, []);
+
   const createChat = async (firstName: string, lastName: string): Promise<Chat | null> => {
     try {
       const response = await api.post('/chats', { firstName, lastName });
       const newChat = response.data;
-      setChats(prev => [newChat, ...prev]);
+      setChats(prev => [newChat, ...prev]); // Новый чат сразу добавляется наверх
       return newChat;
     } catch (err: unknown) {
       const apiError = err as ApiError;
@@ -78,23 +105,34 @@ export const useChats = () => {
     }
   };
 
+  const updateChatLastMessage = useCallback((chatId: string, newMessage: Message): void => {
+    console.log('Updating last message and reordering chat:', chatId);
+    
+    setChats(prev => {
+      // Сначала обновляем сообщение в чате
+      const updatedChats = prev.map(chat => {
+        if (chat._id === chatId) {
+          const updatedMessages = [...(chat.messages || []), newMessage];
+          return {
+            ...chat,
+            messages: updatedMessages
+          };
+        }
+        return chat;
+      });
+
+      // Затем перемещаем чат наверх
+      const chatToMove = updatedChats.find(chat => chat._id === chatId);
+      if (!chatToMove) return updatedChats;
+
+      const otherChats = updatedChats.filter(chat => chat._id !== chatId);
+      return [chatToMove, ...otherChats];
+    });
+  }, []);
+
   useEffect(() => {
     fetchChats();
   }, [fetchChats]);
-
-  const updateChatLastMessage = useCallback((chatId: string, newMessage: Message): void => {
-    setChats(prev => prev.map(chat => {
-      if (chat._id === chatId) {
-        // Создаем новый массив сообщений с новым сообщением в конце
-        const updatedMessages = [...(chat.messages || []), newMessage];
-        return {
-          ...chat,
-          messages: updatedMessages
-        };
-      }
-      return chat;
-    }));
-  }, []);
 
   return {
     chats,
@@ -104,6 +142,7 @@ export const useChats = () => {
     createChat,
     updateChat,
     deleteChat,
-    updateChatLastMessage
+    updateChatLastMessage,
+    reorderChats
   };
 };

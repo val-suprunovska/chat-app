@@ -16,7 +16,7 @@ import './App.css';
 function App() {
   const { user, loading: authLoading } = useAuth();
   const { socket, isConnected } = useSocket();
-  const { chats, loading: chatsLoading, refetch: refetchChats, updateChatLastMessage } = useChats();
+  const { chats, loading: chatsLoading, refetch: refetchChats, updateChatLastMessage, reorderChats } = useChats();
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   
@@ -40,6 +40,9 @@ function App() {
         console.log('Selected chat ID:', selectedChat?._id);
         console.log('Message chat ID:', message.chatId);
 
+        console.log('Moving chat to top:', message.chatId);
+        reorderChats(message.chatId)
+
         // Обновляем последнее сообщение в списке чатов
         updateChatLastMessage(message.chatId, message);
 
@@ -60,8 +63,16 @@ function App() {
         
         if (selectedChat && updatedMessage.chatId === selectedChat._id) {
           console.log('Updating message in current chat');
-          // Обновляем сообщение в локальном состоянии
-          updateMessage(updatedMessage._id, updatedMessage.content);
+          // Вызываем API для обновления сообщения
+          updateMessage(updatedMessage._id, updatedMessage.content)
+            .then(success => {
+              if (success) {
+                console.log('Message updated successfully via socket');
+              }
+            })
+            .catch(error => {
+              console.error('Error updating message via socket:', error);
+            });
         }
       };
 
@@ -81,7 +92,7 @@ function App() {
         socket.off('error', handleError);
       };
     }
-  }, [socket, selectedChat, updateChatLastMessage, refetchMessages, updateMessage]);
+  }, [socket, selectedChat, updateChatLastMessage, refetchMessages, updateMessage, refetchChats, reorderChats]);
 
   const handleSendMessage = useCallback(async (content: string): Promise<void> => {
     console.log('=== APP: handleSendMessage ===');

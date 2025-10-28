@@ -30,7 +30,7 @@ export const ChatList: React.FC<ChatListProps> = ({
     isCollapsed, 
     sidebarWidth, 
     toggleSidebar 
-  } = useSidebar(); // Убрали функции управления шириной
+  } = useSidebar();
 
   const filteredChats = chats.filter(chat =>
     `${chat.firstName} ${chat.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())

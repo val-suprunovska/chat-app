@@ -9,16 +9,16 @@ import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/chats.js';
 import messageRoutes from './routes/messages.js';
 import { connectDB } from './utils/database.js';
-import Chat from './models/Chat.js'; // ДОБАВЛЯЕМ ИМПОРТ
-import Message from './models/Message.js'; // ДОБАВЛЯЕМ ИМПОРТ
-import { getRandomQuote } from './utils/quotable.js'; // ДОБАВЛЯЕМ ИМПОРТ
+import Chat from './models/Chat.js';
+import Message from './models/Message.js';
+import { getRandomQuote } from './utils/quotable.js';
 
 dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
 
-// Настройка CORS - ВАЖНО!
+// Настройка CORS
 const corsOptions = {
   origin: process.env.CLIENT_URL || "http://localhost:5173",
   credentials: true,
@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
 
       if (!chatId || !content) {
         console.log('Missing chatId or content');
-        socket.emit('error', { message: 'Отсутствует ID чата или сообщение' });
+        socket.emit('error', { message: 'Missing chatId or content' });
         return;
       }
 
@@ -95,7 +95,7 @@ io.on('connection', (socket) => {
       const chat = await Chat.findById(chatId);
       if (!chat) {
         console.log('Chat not found:', chatId);
-        socket.emit('error', { message: 'Чат не найден' });
+        socket.emit('error', { message: 'Chat not found' });
         return;
       }
 
@@ -109,7 +109,8 @@ io.on('connection', (socket) => {
 
       // Добавляем сообщение в чат
       await Chat.findByIdAndUpdate(chatId, {
-        $push: { messages: userMessage._id }
+        $push: { messages: userMessage._id },
+        $set: { updatedAt: new Date() }
       });
 
       console.log('User message created:', userMessage._id);
@@ -135,7 +136,8 @@ io.on('connection', (socket) => {
 
           // Добавляем системное сообщение в чат
           await Chat.findByIdAndUpdate(chatId, {
-            $push: { messages: systemMessage._id }
+            $push: { messages: systemMessage._id },
+            $set: { updatedAt: new Date() }
           });
 
           // Отправляем системное сообщение через Socket.io

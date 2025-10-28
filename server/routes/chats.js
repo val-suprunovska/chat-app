@@ -16,12 +16,13 @@ router.get('/', async (req, res) => {
     // Убеждаемся что у пользователя есть чаты
     await ensureUserHasChats(req.user._id);
     
+    // Получаем чаты с сортировкой по updatedAt
     const chats = await Chat.find({ userId: req.user._id })
-      .sort({ createdAt: -1 });
+      .sort({ updatedAt: -1, createdAt: -1 });
 
     console.log(`Found ${chats.length} chats`);
 
-    // Затем для каждого чата получаем сообщения
+    // Для каждого чата получаем сообщения
     const chatsWithMessages = await Promise.all(
       chats.map(async (chat) => {
         console.log(`Fetching messages for chat: ${chat._id}`);
@@ -39,17 +40,23 @@ router.get('/', async (req, res) => {
           lastName: chat.lastName,
           messages: messages,
           createdAt: chat.createdAt,
-          updatedAt: chat.updatedAt
+          updatedAt: chat.updatedAt || chat.createdAt
         };
       })
     );
 
+    // Дополнительная сортировка на сервере для уверенности
+    chatsWithMessages.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    console.log('Final chats order:');
+    chatsWithMessages.forEach((chat, index) => {
+      console.log(`${index + 1}. ${chat.firstName} ${chat.lastName} - ${chat.updatedAt}`);
+    });
+
     res.json(chatsWithMessages);
   } catch (error) {
     console.error('Error fetching chats:', error);
-    res.status(500).json({ 
-      message: 'Ошибка при загрузке чатов. Пожалуйста, попробуйте позже' 
-    });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -23,7 +23,17 @@ const chatSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
+});
+
+// Middleware для обновления updatedAt при изменении
+chatSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 // Виртуальное поле для полного имени
