@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
+import { GOOGLE_OAUTH_URL } from '../../../utils/constants';
 import './LoginForm.css';
 
 export const LoginForm: React.FC = () => {
@@ -14,7 +15,8 @@ export const LoginForm: React.FC = () => {
 
   const handleGoogleLogin = () => {
     console.log("🔐 Starting Google OAuth...");
-    window.location.href = "http://localhost:5000/api/auth/google";
+    console.log("OAuth URL:", GOOGLE_OAUTH_URL);
+    window.location.href = GOOGLE_OAUTH_URL;
   };
 
   useEffect(() => {

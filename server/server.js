@@ -22,7 +22,7 @@ const httpServer = createServer(app);
 
 // Настройка CORS
 const corsOptions = {
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: [ process.env.CLIENT_URL || "http://localhost:5173", "https://*.vercel.app", "https://chat-app-phi-amber.vercel.app"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
