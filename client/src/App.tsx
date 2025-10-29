@@ -14,7 +14,7 @@ import type { Chat, Message } from './types';
 import './App.css';
 
 function App() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, shouldRefreshChats } = useAuth();
   const { socket, isConnected } = useSocket();
   const { chats, loading: chatsLoading, refetch: refetchChats, updateChatLastMessage, reorderChats } = useChats();
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
@@ -22,12 +22,13 @@ function App() {
   
   const { messages, refetch: refetchMessages, updateMessage, sendMessage } = useMessages(selectedChat?._id || null);
 
+  // Добавьте эффект для отслеживания успешной OAuth аутентификации
   useEffect(() => {
-    if (user) {
-      console.log('User changed, refetching chats...');
+    if (shouldRefreshChats && user) {
+      console.log('🔄 OAuth authentication detected, refetching chats...');
       refetchChats();
     }
-  }, [user, refetchChats]);
+  }, [shouldRefreshChats, user, refetchChats]);
 
   // Обработчики Socket.io событий
   useEffect(() => {

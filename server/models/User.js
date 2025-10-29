@@ -4,15 +4,31 @@ import bcrypt from 'bcryptjs';
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: function() {
+      return !this.googleId; // Email обязателен только для обычной регистрации
+    },
     unique: true,
     lowercase: true,
     trim: true
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function() {
+      return !this.googleId; // Пароль обязателен только для обычной регистрации
+    },
     minlength: [6, 'Password must be at least 6 characters']
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Разрешает null значения для уникальности
+  },
+  name: {
+    type: String,
+    trim: true
+  },
+  avatar: {
+    type: String
   },
   createdAt: {
     type: Date,
@@ -20,16 +36,16 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// Хешируем пароль только если он был изменен и существует
 userSchema.pre('save', async function(next) {
-  // Only run this function if password was actually modified
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   
-  // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
 userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
+  if (!candidatePassword || !userPassword) return false;
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 

@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import session from 'express-session'; 
 
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/chats.js';
@@ -12,6 +13,7 @@ import { connectDB } from './utils/database.js';
 import Chat from './models/Chat.js';
 import Message from './models/Message.js';
 import { getRandomQuote } from './utils/quotable.js';
+import passport from './config/passport.js'
 
 dotenv.config();
 
@@ -28,6 +30,20 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 часа
+  }
+}));
+
+// Инициализация Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Логирование запросов для отладки
 app.use((req, res, next) => {
